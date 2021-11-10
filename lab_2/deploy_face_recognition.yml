@@ -1,0 +1,52 @@
+---
+- hosts: all
+  become: yes
+
+  vars:
+    git_url: https://github.com/ageitgey/face_recognition.git
+    dir_path: /home/mftiedu/face_recognition
+
+  tasks:
+    - block: #CentOS#
+      - name: Install init packages
+        yum: name={{item}} state=present update_cache=yes
+        loop:
+          - git
+          - python3-pip
+          - python3-virtualenv
+      when: ansible_os_family == "RedHat"
+    
+    - block: #Debian#
+      - name: Install init packages
+        apt: name={{item}} state=present update_cache=yes
+        loop:
+          - git
+          - python3-pip
+          - python3-venv
+      when: ansible_os_family == "Debian"
+
+    - name: Git clone
+      git:
+        repo: "{{ git_url }}"
+        dest: "{{ dir_path }}"
+
+    - name: Create dir
+      file:
+        name: "{{ dir_path }}/venv"
+        state: directory
+    
+    - name: Create venv  
+      pip: 
+        requirements: "{{ dir_path }}/requirements.txt"
+        virtualenv: "{{ dir_path }}/venv"
+        virtualenv_python: python3
+
+    - name: Activate venv
+      shell: cd {{ dir_path }} && source ./venv/bin/activate
+
+    - name: Run script
+      script: "{{ dir_path }}/examples/blink_detection.py"
+      args:
+        executable: python3
+
+...

@@ -1,0 +1,27 @@
+---
+- name: Configurate nginx
+  hosts: all
+  become: yes
+
+  tasks:
+    - name: Install the latest version of nginx
+      yum:
+        name: nginx
+        state: latest
+        update_cache: yes
+      when: ansible_os_family == 'RedHat'
+
+    - name: Install the latest version of nginx
+      apt:
+        name: nginx
+        state: latest
+        update_cache: yes
+      when: ansible_os_family == 'Debian'
+
+    - name: Start service
+      service:
+        name: nginx
+        state: started
+
+...
+    
