@@ -1,0 +1,21 @@
+version: '3.9'
+
+volumes:
+  pg_project:
+
+services:
+  pg_db:
+    image: postgres
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=test_db
+    ports:
+      - ${POSTGRES_PORT:-5432}:5432
+  test_db:
+    image: db_access
+    links:
+      - pg_db
+    depends_on:
+      - pg_db
